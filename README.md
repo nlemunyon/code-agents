@@ -274,6 +274,27 @@ Validate documentation with:
 python3 plugins/engineering-team/scripts/validate_portable_documentation.py .
 ```
 
+## Documentation quality
+
+Keep user and developer docs, code comments, and docstrings at U.S. grade 12 or
+below. This rule does not apply to agent prompts or skill instructions. Each
+public surface still needs developer docs. Add a tested example, the result,
+and user errors with their meaning and fix. State why when a result or error
+does not apply.
+
+The [developer reference](plugins/engineering-team/DEVELOPER.md) lists public
+skills, roles, commands, results, and errors.
+
+Run the docs check on each file you add or change. The command below checks
+this change:
+
+```bash
+python3 plugins/engineering-team/scripts/validate_documentation_quality.py \
+  --changed-from HEAD README.md plugins/engineering-team/DEVELOPER.md \
+  plugins/engineering-team/scripts \
+  --inventory plugins/engineering-team/public-documentation.json
+```
+
 ## Current-documentation enforcement
 
 Every specialist treats model training knowledge as a discovery aid, not proof.
@@ -339,6 +360,12 @@ From the repository root:
 ```bash
 python3 plugins/engineering-team/scripts/validate_agent_templates.py
 python3 plugins/engineering-team/scripts/validate_portable_documentation.py .
+python3 plugins/engineering-team/scripts/validate_prompt_budgets.py
+python3 plugins/engineering-team/scripts/validate_orchestration_ledger.py --help
+python3 plugins/engineering-team/scripts/validate_documentation_quality.py \
+  --changed-from HEAD README.md plugins/engineering-team/DEVELOPER.md \
+  plugins/engineering-team/scripts \
+  --inventory plugins/engineering-team/public-documentation.json
 python3 plugins/engineering-team/scripts/validate_workflow_references.py
 python3 plugins/engineering-team/scripts/validate_release_identity.py --base-ref HEAD
 python3 plugins/engineering-team/tests/run.py

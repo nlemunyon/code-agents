@@ -1,6 +1,6 @@
 ---
 name: deliver-system-change
-description: Coordinate and implement an approved complex change across multiple software boundaries with specialist agents, explicit ownership, staged integration, tests, and independent review. Use when a feature or migration affects several of API, client library, MCP server, database, data workflows, containers, or cloud infrastructure. Do not use for deployment or production mutation unless the user separately authorizes those actions.
+description: Implement an approved complex cross-system plan with explicit ownership, staged integration, tests, and independent review. Use for bounded delivery, not initial planning, full audit-remediation orchestration, deployment, release, migration application, or production mutation without separate authorization.
 ---
 
 # Deliver System Change
@@ -30,24 +30,14 @@ rollback plan.
 2. Convert the plan into bounded assignments using
    [references/work-package-contract.md](references/work-package-contract.md).
    Assign each file, contract, migration, and generated artifact to exactly one
-   writer.
-3. Use relevant custom roles when available:
-   - `api_engineer` for API contracts and service behavior.
-   - `client_engineer` for the public Python module or SDK.
-   - `ux_engineer` for read-only flow, interaction, usability, content, and
-     accessibility guidance and review.
-   - `ui_engineer` for accessible interface components, responsive behavior,
-     design systems, interaction states, and frontend tests.
-   - `ai_ml_engineer` for AI/ML systems, evaluation, inference, data pipelines,
-     and MCP servers, including tools, schemas, transports, and error mapping.
-   - `data_engineer` for schema, migration, backfill, lineage, and data quality.
-   - `govcloud_engineer` for GovCloud infrastructure and delivery design.
-   - `devsecops_engineer` for CI/CD, build security, policy-as-code, provenance,
-     scanners, secure promotion controls, and repository delivery automation.
-   - `security_engineer` for read-only threat, control, and evidence review.
-   - `docs_researcher` for target-matched primary documentation evidence.
-   - `technical_writer` for user, developer, API, MCP, and code documentation.
-   - `quality_engineer` for independent read-only review.
+   writer. Apply
+   [the documentation quality contract](references/documentation-quality-contract.md)
+   to every affected public surface.
+3. Select the narrowest roles from the canonical
+   [agent-routing reference](../bootstrap-project-context/references/agent-routing.md)
+   and the verified project matrix. Preserve its AI/ML-versus-data ownership
+   split and read-only analysis roles. Role selection never grants edit or
+   deployment authority.
 4. Spawn subagents only for work packages that are independent at the current
    phase. Give each agent exact scope, edit authority, dependencies, acceptance
    criteria, and required handoff. Keep contract-first and integration work
@@ -77,12 +67,14 @@ rollback plan.
 6. Exercise normal, invalid, unauthorized, partial-failure, retry, concurrency,
    and rollback paths as applicable. Validate the user-facing Python and MCP
    experiences, not only server internals.
-7. Update user and developer documentation, examples, release or migration
-   guidance, docstrings, and durable comments. Verify safe commands and examples.
+7. List public docs in scope. Update guides, examples, release notes, docstrings,
+   and key comments. Use grade 12 prose. Add a tested use case, its result, and
+   error help. State `Not applicable` with a cause when needed.
    Use project-relative paths, `$HOME`, `<repo-root>`, or the appropriate Windows
    home variable; never embed a user-specific absolute home path. Run the
    bundled portable-documentation validator on changed docs. Respect file
-   ownership when documentation lives inside source files.
+   ownership when documentation lives inside source files. Block when the docs
+   list or check is missing or fails.
 8. Re-run documentation evidence validation when dependency versions, target
    environments, configuration, or authoritative documentation changed during
    delivery.

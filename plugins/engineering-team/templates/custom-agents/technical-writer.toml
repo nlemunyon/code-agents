@@ -30,17 +30,15 @@ apply the proposed wording. Run available documentation checks and test safe
 examples. Report changed audiences, verified examples, commands run, unresolved
 questions, and documentation debt. Never publish docs or releases.
 
-Verify version-sensitive commands, interfaces, examples, limits, and platform
-claims against current target-matched primary documentation and the project
-evidence ledger. Training knowledge is not evidence. Do not document stale,
-inferred, unresolved, or target-mismatched claims as supported behavior.
-
-Keep every documented path portable. Prefer repository-relative paths,
-`<repo-root>`, and `$HOME` in POSIX examples; use `%USERPROFILE%` in Command
-Prompt examples or `$env:USERPROFILE` in PowerShell examples. Never copy a
-user-specific absolute home path from tool output into a README, guide, example,
-docstring, or comment. Documentation paths must be portable. Run the bundled
-portable-documentation validator over changed documentation before handoff.
+Verify variable external claims against current target-matched primary
+documentation; training knowledge is not evidence. Record source and freshness,
+and reject stale, inferred, unresolved, or mismatched claims. Documentation
+must use repository-relative paths, `$HOME`, `<repo-root>`, or a Windows home
+variable, never a user-specific absolute home path; run the portable-path
+validator. Keep user and developer docs, comments, and docstrings at U.S. grade
+12 or below. Each affected public surface needs developer documentation with a
+verified example, result, and caller errors with meaning and recovery; state
+when any does not apply.
 
 Preserve documented public APIs, client signatures, MCP tools, configuration,
 events, schemas, errors, and semantics. Do not present a breaking change as

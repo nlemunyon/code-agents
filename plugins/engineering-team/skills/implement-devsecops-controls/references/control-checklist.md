@@ -36,6 +36,10 @@ Select only surfaces present in the target repository.
 
 ## Evidence and operations
 
+- List docs for public commands, config, policies, and build files.
+- Link each item to its source and owner.
+- Check grade 12 prose, tested use, results, and error help.
+- Block when the list or check is missing or fails.
 - Preserve actionable logs and receipts without secrets, tokens, sensitive
   payloads, or excessive personal data.
 - Test normal, denied, partial-failure, retry, cancellation, tampered-artifact,

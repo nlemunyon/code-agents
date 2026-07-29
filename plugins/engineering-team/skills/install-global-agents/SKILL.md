@@ -1,6 +1,6 @@
 ---
 name: install-global-agents
-description: Install, update, inspect, or uninstall the Engineering Team custom agents in user-level Codex configuration so the reusable roles are available across repositories. Use when a user asks for global agents, wants to avoid copying the same .codex/agents files into every project, needs to refresh globally installed roles, or wants to remove them safely. Do not use for project-specific architecture, commands, credentials, or policy.
+description: Install, inspect, update, or safely uninstall reusable Engineering Team agents in user-level Codex configuration. Use for global roles across repositories, not project-specific context, architecture, commands, credentials, policy, or local agent overrides.
 ---
 
 # Install Global Agents

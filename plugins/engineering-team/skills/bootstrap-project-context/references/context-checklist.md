@@ -49,6 +49,9 @@ filling them with generic advice.
   end-to-end commands
 - How to run one test, one package, and the full suite
 - Documentation build, link, spelling, example, and generated-reference checks
+- List of public docs, their owners, and source links
+- Docs check for grade 12 prose, tested use, results, and error help
+- A block when the list or check is missing or fails
 - Portable path convention: project-relative paths, `$HOME`, `<repo-root>`, or
   the appropriate Windows home variable; no user-specific absolute home paths
 - Documentation evidence ledger location, validation command, ownership, and

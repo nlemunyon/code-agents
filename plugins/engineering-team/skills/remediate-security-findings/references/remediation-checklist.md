@@ -52,6 +52,13 @@ Use only the sections relevant to the validated root cause.
 
 ## Verification and rollout
 
+- Inventory each affected public surface and link its source, docs, owner,
+  example, expected result, error guidance, and verification.
+- Require authored prose at U.S. grade 12 or lower, verified usage, expected
+  returns or outputs, and caller-facing error meaning and recovery. Require an
+  explicit `Not applicable` reason when needed.
+- Fail closed when the documentation inventory or quality check is missing or
+  fails.
 - Make the original safe proof fail before the fix and pass after it, or explain
   why a deterministic baseline is unsafe or impractical.
 - Test normal behavior plus bypass variants, alternate encodings, malformed

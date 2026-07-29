@@ -17,6 +17,7 @@ The first JSON Lines record is immutable and has `record_type: "run"`,
 - outcome, scope, exclusions, target, applicable instruction sources, and the
   project routing evidence consumed;
 - acceptance criteria, work graph, public contracts, documentation claim IDs,
+  affected public-documentation inventory and quality-gate command,
   rollout, migration, recovery, risks, assumptions, decisions, and non-goals;
 - separately authorized `audit_scope` and `remediation_write_scope`;
 - configured `max_iterations`, `max_distinct_findings`,
@@ -50,7 +51,8 @@ Never edit, remove, reorder, or replace earlier records. Each transition records
 - slice, work-package, phase, prior status, next status, actor, ownership scope,
   comparison base, and result revision;
 - criterion evidence, changed files, contract status, findings and dispositions,
-  gate-record IDs, command-receipt IDs, documentation evidence, residual risk,
+  gate-record IDs, command-receipt IDs, documentation evidence, public-doc
+  coverage and grade-level status, residual risk,
   and the reason for continuing, closing, blocking, checkpointing, or replanning.
 
 Use stable root-cause finding keys across iterations. A renamed or rediscovered
@@ -102,5 +104,7 @@ full-scope security gates.
 
 Append `record_type: "final"` only after every criterion and work package is
 complete, all required receipts validate, independent review has no unresolved
-blocker, full-scope security has converged, contracts have approved status, and
+blocker, full-scope security has converged, contracts have approved status, the
+public-documentation inventory proves verified usage, expected results, and
+caller-facing error meaning and recovery in grade-12-or-lower authored prose, and
 rollout, rollback, recovery, limitations, and residual risks are recorded.

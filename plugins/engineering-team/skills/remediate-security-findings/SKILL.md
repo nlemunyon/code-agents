@@ -1,6 +1,6 @@
 ---
 name: remediate-security-findings
-description: Implement and verify fixes for explicitly selected, validated security findings in a software repository. Use when the user asks to fix findings from a security audit, vulnerability report, advisory, or reviewed issue and expects code, configuration, dependency, test, or documentation changes. Do not use for discovering new findings, broad security hardening without selected findings, formal compliance work, production deployment, live exploitation, or unapproved breaking public-contract changes.
+description: Implement and verify fixes for explicitly selected, validated security findings. Use for bounded remediation, not discovering findings, broad hardening, iterative repository-wide audit-remediation, compliance certification, live exploitation, production deployment, or unapproved breaking public contracts.
 ---
 
 # Remediate Security Findings
@@ -68,7 +68,12 @@ the vulnerable behavior no longer succeeds.
    regression test would fail without the fix.
 8. Run focused then proportionate broader verification, including contract and
    documentation checks. Inspect the diff for secrets, unsafe examples, disabled
-   controls, and accidental contract changes.
+   controls, and accidental contract changes. Inventory affected public
+   documentation and apply
+   [the documentation quality contract](../deliver-system-change/references/documentation-quality-contract.md).
+   Fail closed unless authored prose is grade 12 or lower and every affected
+   surface has verified usage, expected results, and caller-facing error meaning
+   and recovery, or an explicit `Not applicable` reason.
 9. Have the independent security reviewer re-trace the original path, relevant
    bypasses, and alternate in-scope sinks. Address validated gaps and rerun
    affected checks.

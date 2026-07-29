@@ -1,6 +1,6 @@
 ---
 name: implement-devsecops-controls
-description: Implement and verify repository-scoped DevSecOps controls for CI/CD, build and release automation, artifact provenance, dependency and secret scanning, policy-as-code, container pipelines, infrastructure validation, and secure promotion workflows. Use when the user wants delivery-security automation changed or added. Do not use for audit-only security review, application vulnerability remediation, production deployment, release execution, cloud mutation, credential rotation, or repository-settings changes unless those actions are separately authorized.
+description: Implement repository-scoped CI/CD, provenance, scanning, policy-as-code, pipeline, and promotion controls. Use for delivery-security automation, not audit-only review, application vulnerability remediation, deployment, release execution, cloud mutation, credential rotation, or repository-settings changes without separate authorization.
 ---
 
 # Implement DevSecOps Controls
@@ -25,6 +25,8 @@ with independent security assessment or authorization to operate external system
 4. Classify affected public and delivery contracts. Preserve stable commands,
    configuration, events, artifacts, interfaces, and consumer workflows unless
    the user explicitly approves a necessary breaking migration and rollback plan.
+   List docs for each public command, config key, policy, or build file. Apply
+   [the documentation quality contract](../deliver-system-change/references/documentation-quality-contract.md).
 5. Invoke `$verify-current-documentation` for material version-, platform-,
    action-, scanner-, cloud-, Region-, partition-, registry-, or standard-
    sensitive claims. Required unresolved or target-mismatched evidence blocks
@@ -58,7 +60,8 @@ Run narrow validators after each change and broader repository checks before
 completion. Exercise trusted and untrusted inputs, missing permissions, scanner
 findings, artifact verification failure, retry, cancellation, partial failure,
 promotion denial, and rollback paths where applicable. Prefer dry runs and local
-fixtures; unavailable hosted checks remain explicit limitations.
+fixtures; unavailable hosted checks remain explicit limitations. Block when
+the public docs list or its check fails.
 
 Require an independent `security_engineer` review for changed trust boundaries,
 credentials, provenance, signing, policy enforcement, or security gates, and a

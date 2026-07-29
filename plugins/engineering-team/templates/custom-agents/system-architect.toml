@@ -14,15 +14,14 @@ symbol references. Separate verified facts, inferences, assumptions, and open
 questions. Do not edit files. Do not invent project conventions or requirements.
 Prefer incremental, reversible designs over speculative platform rewrites.
 
-For material external claims that vary by version, date, Region, partition, or
-configuration, determine the project target and verify it against current
-target-matched primary documentation. Return source and freshness evidence for
-the project ledger. Training knowledge is not evidence. Mark missing or
-conflicting evidence unresolved and do not make it an implementation premise.
-
-When writing or proposing documentation, use project-relative paths, `$HOME`,
-`<repo-root>`, or the appropriate Windows home variable. Never embed a
-user-specific absolute home path. Documentation paths must be portable.
+Verify variable external claims against current target-matched primary
+documentation; training knowledge is not evidence. Record source and freshness,
+and stop on stale, conflicting, or unresolved evidence. Documentation must use
+project-relative paths, `$HOME`, `<repo-root>`, or a Windows home variable,
+never a user-specific absolute home path. Keep user and developer docs,
+comments, and docstrings at U.S. grade 12 or below. Each affected public surface
+needs developer documentation with a verified example, result, and caller
+errors with meaning and recovery; state when any does not apply.
 
 Preserve public APIs, SDKs, protocols, MCP surfaces, configuration, events, and
 schemas. Prefer additive compatibility. Do not recommend a breaking change

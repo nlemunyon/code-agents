@@ -14,6 +14,9 @@ Give every implementation agent a bounded assignment with these fields.
 - **Public contract impact:** none, additive, deprecated-but-compatible, or
   breaking; include the approval reference and migration plan for any break.
 - **Documentation claims:** required ledger claim IDs and their current status.
+- **Public docs:** list the docs in scope, their owner, examples, results, error
+  help, and test proof. Follow
+  [the documentation quality contract](documentation-quality-contract.md).
 - **Verification:** commands or tests the agent must run.
 - **Handoff:** diff summary, commands and results, assumptions, risks, and follow-up.
 
@@ -48,6 +51,7 @@ Give every implementation agent a bounded assignment with these fields.
   protocol, configuration, command, event, or externally consumed schema.
 - Stop when a required documentation claim is missing, stale, inferred,
   unresolved, secondary-only, or mismatched to the actual target.
+- Stop when public docs or their check fail.
 
 ## Example
 

@@ -28,9 +28,44 @@ REQUIRED_STRING_FIELDS = ("name", "description", "developer_instructions")
 NAME_PATTERN = re.compile(r"^[a-z][a-z0-9_]*$")
 NICKNAME_PATTERN = re.compile(r"^[A-Za-z0-9 _-]+$")
 ALLOWED_SANDBOX_MODES = {"read-only", "workspace-write", "danger-full-access"}
-DOCUMENTATION_POLICY_MARKER = "Training knowledge is not evidence."
-PORTABLE_DOCUMENTATION_MARKER = "Documentation paths must be portable."
-PUBLIC_CONTRACT_POLICY_MARKER = "Public contracts are stable by default."
+POLICY_CONCEPTS = {
+    "documentation evidence": (
+        (r"\bprimary(?: [a-z]+){0,3} documentation\b", r"\bprimary sources?\b"),
+        (r"\btarget[- ]matched\b", r"\b(actual|exact) target\b"),
+        (r"\btraining knowledge\b",),
+        (r"\b(stale|unresolved|conflicting|mismatched)\b",),
+    ),
+    "portable documentation": (
+        (r"\b(project|repository)[- ]relative paths?\b",),
+        (r"\$HOME|<repo-root>|%USERPROFILE%|\$env:USERPROFILE",),
+        (r"\buser-specific absolute home path\b",),
+    ),
+    "grade 12 readability": (
+        (r"\b(user|developer) docs?\b",),
+        (r"\bgrade 12\b",),
+        (r"\bcomments?\b",),
+        (r"\bdocstrings?\b",),
+    ),
+    "public-surface developer documentation": (
+        (r"\bpublic surface\b",),
+        (r"\bdeveloper documentation\b",),
+        (r"\b(verified|tested) (usage )?example\b",),
+        (r"\b(return|output|result)\b",),
+        (r"\berrors?\b",),
+        (r"\b(recovery|fix)\b",),
+        (r"\b(if|when) .*does not apply\b",),
+    ),
+    "public contract stability": (
+        (r"\bpublic contracts?\b", r"\bpublic APIs?\b"),
+        (r"\b(additive|backward.compatib|compatible alternatives?|preserve)\b",),
+        (r"\bbreaking\b", r"\bunapproved changes?\b"),
+        (r"\b(explicit user approval|approval requirements?)\b",),
+        (r"\bversioning\b", r"\bversioned\b"),
+        (r"\bdeprecation\b", r"\bdeprecations\b"),
+        (r"\bmigration\b",),
+        (r"\brollback\b", r"\bcompatible alternatives\b"),
+    ),
+}
 
 
 def load_toml(path: Path) -> dict:
@@ -65,19 +100,18 @@ def validate_agent(path: Path, seen_names: set[str]) -> list[str]:
         errors.append(f"{path}: unsupported sandbox_mode {sandbox_mode!r}")
 
     instructions = data.get("developer_instructions")
-    normalized_instructions = " ".join(instructions.split()) if isinstance(instructions, str) else ""
-    if isinstance(instructions, str) and DOCUMENTATION_POLICY_MARKER not in normalized_instructions:
-        errors.append(
-            f"{path}: developer_instructions must include the documentation evidence policy"
-        )
-    if isinstance(instructions, str) and PORTABLE_DOCUMENTATION_MARKER not in normalized_instructions:
-        errors.append(
-            f"{path}: developer_instructions must include the portable documentation policy"
-        )
-    if isinstance(instructions, str) and PUBLIC_CONTRACT_POLICY_MARKER not in normalized_instructions:
-        errors.append(
-            f"{path}: developer_instructions must include the public contract policy"
-        )
+    normalized = " ".join(instructions.split()).lower() if isinstance(instructions, str) else ""
+    for policy, concept_groups in POLICY_CONCEPTS.items():
+        missing = [
+            "/".join(group)
+            for group in concept_groups
+            if not any(re.search(pattern, normalized) for pattern in group)
+        ]
+        if missing:
+            errors.append(
+                f"{path}: developer_instructions missing {policy} concepts: "
+                + ", ".join(missing)
+            )
 
     nicknames = data.get("nickname_candidates", [])
     if not isinstance(nicknames, list) or any(not isinstance(n, str) for n in nicknames):

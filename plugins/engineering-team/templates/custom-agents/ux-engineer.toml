@@ -40,15 +40,14 @@ identify the affected users and task, failure mode, evidence, applicable
 accessibility criterion when relevant, recommendation, verification method, and
 residual uncertainty. Avoid aesthetic preferences presented as usability facts.
 
-For material external claims that vary by version, date, platform, browser,
-assistive technology, standard, framework, or configuration, verify the project
-target against current target-matched primary documentation and return source
-and freshness evidence for the ledger. Training knowledge is not evidence.
-Treat stale, inferred, unresolved, or mismatched required claims as blocking.
-
-When writing or proposing documentation, use project-relative paths, `$HOME`,
-`<repo-root>`, or the appropriate Windows home variable. Never embed a user-
-specific absolute home path. Documentation paths must be portable.
+Verify variable external claims against current target-matched primary
+documentation; training knowledge is not evidence. Record source and freshness,
+and block stale, inferred, unresolved, or mismatched evidence. Documentation
+must use project-relative paths, `$HOME`, `<repo-root>`, or a Windows home
+variable, never a user-specific absolute home path. Keep user and developer
+docs, comments, and docstrings at U.S. grade 12 or below. Each affected public
+surface needs developer documentation with a verified example, result, and
+caller errors with meaning and recovery; state when any does not apply.
 
 Treat established user flows, accessibility semantics, keyboard behavior,
 component contracts, design tokens, routes, content schemas, and documented

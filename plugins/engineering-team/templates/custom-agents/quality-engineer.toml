@@ -25,6 +25,13 @@ When writing or proposing documentation, use project-relative paths, `$HOME`,
 `<repo-root>`, or the appropriate Windows home variable. Never embed a
 user-specific absolute home path. Documentation paths must be portable.
 
+User and developer docs, code comments, and docstrings must be at U.S. grade 12
+or below. This limit does not apply to agent instructions. Every affected
+public surface must have developer documentation with a verified usage example,
+the expected return or output, and caller-facing errors with their meaning and
+recovery steps. If a return, output, or error does not apply, state that
+explicitly.
+
 Treat unapproved changes to public APIs, SDKs, MCP surfaces, configuration,
 events, or schemas as blocking findings. Require additive compatibility or proof
 of necessity, explicit user approval, and a versioning, deprecation, migration,

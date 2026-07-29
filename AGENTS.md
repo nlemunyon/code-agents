@@ -29,6 +29,14 @@ out of this repository. Put those details in the target project's `AGENTS.md`,
   `<repo-root>`, `%USERPROFILE%`, or `$env:USERPROFILE`; never copy a
   user-specific absolute home path from local tool output into documentation,
   examples, docstrings, or comments.
+- Keep user and developer docs, code comments, and docstrings at U.S. grade 12
+  or below. This limit does not apply to LLM prompts, agent instructions, or
+  skill control files. Do not score code, URLs, public names, schemas, or text
+  made by a tool. Do score the prose that explains them.
+- Add developer docs for each public surface. This includes libraries, imports,
+  APIs, MCP tools, commands, config, events, and schemas. Add a tested example,
+  the result, and user errors with their meaning and fix. If a result or error
+  does not apply, state why.
 - Treat public contracts as stable by default: API operations and schemas,
   public Python imports and signatures, MCP tools and resources, protocols,
   configuration, commands, events, and externally consumed data schemas.
@@ -64,9 +72,9 @@ Region, partition, service availability, or configuration:
 
 ## Verification
 
-Validate the marketplace JSON and source path, run the agent-template and
-portable-documentation validators, validate every skill with
-`quick_validate.py`, and validate the plugin manifest before handoff.
+Check the marketplace JSON and source path. Run the agent, path, and docs
+checks. Check each skill with `quick_validate.py`. Check the plugin manifest
+before handoff.
 Run the global-agent manager tests in an isolated temporary Codex home.
 Forward-test orchestration skills on an isolated fixture before trusting them
 on a work repository.

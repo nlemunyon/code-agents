@@ -1,6 +1,6 @@
 ---
 name: diagnose-system-failure
-description: Diagnose a failure that may cross API, Python client, MCP server, database, data workflow, container, network, or cloud boundaries. Use for integration bugs, inconsistent behavior between interfaces, data corruption or drift, deployment-only failures, intermittent errors, and unclear root causes. Diagnose and report by default; implement a fix only when the user asks for one.
+description: Diagnose cross-system failures, integration bugs, inconsistent interfaces, data drift, deployment-only faults, intermittent errors, or unclear root causes. Investigate and report by default; do not implement fixes or perform a change review unless explicitly requested.
 ---
 
 # Diagnose System Failure
@@ -39,6 +39,9 @@ Prove the failing boundary and root cause before proposing remediation.
 9. Prefer remediation that preserves public API, client, MCP, protocol,
    configuration, event, and schema contracts. Classify any unavoidable break
    and stop for explicit approval and migration planning before implementation.
+10. When the fix changes public help, list the docs in scope and apply
+    [the documentation quality contract](../deliver-system-change/references/documentation-quality-contract.md).
+    Block when the list or docs check fails.
 
 ## Output
 

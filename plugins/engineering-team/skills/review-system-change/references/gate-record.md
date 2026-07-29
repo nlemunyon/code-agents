@@ -53,6 +53,9 @@ criterion they support.
 
 Record `result` as `pass`, `fail`, or `blocked`, the criteria-to-receipt mapping,
 open blockers, contract compatibility, and residual risk. Also record
+the affected public-documentation inventory, grade-level result, verified usage,
+expected-result coverage, caller-facing error meaning and recovery coverage, and
+explicit `Not applicable` reasons. Missing inventory or checks fail closed.
 `valid_until` or an explicit freshness condition plus invalidation triggers,
 including result-revision change, scope or criteria change, relevant file
 change, expired documentation evidence, new finding evidence, reviewer conflict,

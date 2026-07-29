@@ -1,6 +1,6 @@
 ---
 name: plan-system-change
-description: Produce an evidence-based implementation plan for a complex software change that crosses contracts, services, APIs, client libraries, MCP tools, databases, data workflows, containers, or cloud infrastructure. Use for features, migrations, architectural changes, and risky refactors before implementation. Do not use when the requested change is already narrow, local, and fully specified.
+description: Plan a complex cross-system feature, migration, architecture change, or risky refactor using repository evidence and executable work packages. Use before implementation; do not deliver the change, orchestrate an approved plan, or plan narrow, fully specified local work.
 ---
 
 # Plan System Change
@@ -16,19 +16,19 @@ target repository.
    be discovered safely.
 2. Trace the current implementation and data flow before proposing a future
    design. Use [references/boundary-checklist.md](references/boundary-checklist.md)
-   to avoid missing downstream surfaces. Inventory affected public API, Python,
-   MCP, protocol, configuration, event, command, and data contracts and the
-   consumers that rely on them.
+   as the mandatory contract, security, evidence, and verification core; then
+   read only its linked domain checklists for boundaries in scope. Inventory
+   affected public API, Python, MCP, protocol, configuration, event, command,
+   and data contracts and the consumers that rely on them. Inventory the
+   documentation for each affected public surface and apply
+   [the documentation quality contract](../deliver-system-change/references/documentation-quality-contract.md).
 3. Delegate independent read-only analysis when two or more boundaries are
-   materially affected. Use the project `AGENTS.md` agent-routing matrix when
-   present and confirm its task signals match the requested scope. Prefer
-   `system_architect`, `data_engineer`, `devsecops_engineer`,
-   `govcloud_engineer`, `security_engineer`, `ux_engineer`, `technical_writer`,
-   and `docs_researcher` for their specialties; use scoped explorer agents when
-   custom roles are unavailable. Use `ux_engineer` read-only for user flows,
-   interaction requirements, and accessibility acceptance criteria. Tell each
-   agent to return evidence,
-   assumptions, risks, and file references. Wait for all relevant results.
+   materially affected. Select roles from the canonical
+   [agent-routing reference](../bootstrap-project-context/references/agent-routing.md)
+   and the project `AGENTS.md` matrix, confirming that task signals match the
+   scope. Keep analysis-only roles read-only; use scoped explorers when a
+   required role is unavailable. Require evidence, assumptions, risks, and file
+   references, and wait for all relevant results.
 4. Invoke `$verify-current-documentation` for every material external claim that
    varies by version, date, Region, partition, edition, or configuration. Do not
    make a stale, inferred, unresolved, secondary-only, or target-mismatched
@@ -42,7 +42,10 @@ target repository.
    migration, compatibility-window, consumer-impact, and rollback plan.
 6. Produce ordered work packages with explicit inputs, outputs, owner role,
    files or modules, dependencies, verification, and rollback. Separate work
-   that can run in parallel from work that must remain sequential.
+   that can run in parallel from work that must remain sequential. Include
+   owned work for grade-12-or-lower prose, verified usage, expected results, and
+   caller-facing error meaning and recovery, or explicit `Not applicable`
+   reasons.
 7. Assign one owner to every shared contract, database migration, generated
    artifact, and file set. Never plan concurrent edits to the same ownership
    boundary.
@@ -68,7 +71,8 @@ Return:
 5. Test and verification matrix.
 6. Rollout, migration, rollback, and recovery.
 7. Documentation evidence ledger status, claim expiry, and blocked work.
-8. Risks, assumptions, open decisions, and explicit non-goals.
+8. Public documentation inventory, quality-gate status, and blocked work.
+9. Risks, assumptions, open decisions, and explicit non-goals.
 
 Do not edit implementation files while using this skill unless the user also
 asks to proceed with delivery.

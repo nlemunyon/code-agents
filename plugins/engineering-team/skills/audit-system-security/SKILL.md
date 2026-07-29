@@ -1,6 +1,6 @@
 ---
 name: audit-system-security
-description: Perform a read-only, evidence-backed security audit of an entire software repository or an explicitly scoped path. Use for application, API, AI/ML, MCP, data, dependency, supply-chain, container, infrastructure-as-code, CI/CD, secrets-handling, and operational security assessments when the user wants findings and remediation guidance rather than fixes, penetration testing, compliance certification, or review of only a Git diff.
+description: Audit a repository or scoped path for evidence-backed security findings and remediation guidance. Use for broad security assessment, not implementing fixes, penetration testing, compliance certification, iterative remediation, or review limited to a Git diff.
 ---
 
 # Audit System Security
@@ -27,8 +27,8 @@ supported by repository or authorized external evidence.
 
 1. Inventory languages, frameworks, entry points, deployment artifacts,
    dependencies, generated code, tests, and exposed interfaces. Use
-   [references/audit-checklist.md](references/audit-checklist.md) to select only
-   relevant review surfaces.
+   [references/audit-checklist.md](references/audit-checklist.md) as the
+   mandatory core; then read only its linked checklists for relevant surfaces.
 2. Build an evidence-based threat model: assets, sensitive data, actors, trust
    boundaries, entry points, privileges, dependencies, and abuse cases. State
    consequential assumptions and unresolved scope gaps.
@@ -40,12 +40,11 @@ supported by repository or authorized external evidence.
    required claim is a blocking disposition, not merely a limitation; do not
    validate the dependent candidate, severity, remediation, or gate until the
    evidence is resolved.
-4. Use the resolved routing matrix to select independent passes only where the
-   scope warrants them: `security_engineer` for threat-led audit;
-   `ai_ml_engineer` for AI/ML and MCP; `data_engineer` for data boundaries;
-   `devsecops_engineer` for read-only delivery-topology evidence;
-   `govcloud_engineer` for GovCloud; and `docs_researcher` for primary evidence.
-   Prefer capability-read-only roles. A prompt does not capability-enforce
+4. Select independent passes from the canonical
+   [agent-routing reference](../bootstrap-project-context/references/agent-routing.md)
+   and verified project matrix only where scope warrants them. Preserve its
+   AI/ML-versus-data ownership split. Prefer capability-read-only roles. A
+   prompt does not capability-enforce
    read-only operation for a workspace-write specialist: constrain the task,
    inspect the worktree afterward, and report that residual limitation. If a
    required role is unavailable, use a routed read-only substitute and record it
@@ -68,6 +67,9 @@ supported by repository or authorized external evidence.
    residual risk. Do not edit files without a separate request. Treat risk
    acceptance only as proposed until an accountable human and approval reference
    are recorded. Findings outside a supplied write scope are blocked follow-ups.
+9. List public docs in scope when a finding needs public help. Apply
+   [the documentation quality contract](../deliver-system-change/references/documentation-quality-contract.md)
+   and report a failed docs check as a blocker.
 
 ## Output
 

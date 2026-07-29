@@ -37,6 +37,9 @@ Checkpoint after each audit, classification, remediation batch, validation, and
 re-audit. Stop before exceeding any limit; preserve the record as `blocked` with
 the next dependency-ready action and the evidence or authority needed to resume.
 Changing a budget is an explicit run-contract decision, not silent scope drift.
+When this record is nested in an orchestration run, compare both records before
+each phase: the stricter remaining applicable limit wins, and child creation or
+resume never resets parent consumption.
 
 ## Finding record
 
@@ -51,7 +54,9 @@ never reuse it for another root cause. Record:
 - predecessor IDs and relationship: duplicate-of, supersedes, regression-of,
   introduced-by-fix-for, or split-from;
 - disposition owner, writer ownership, changed files, tests, contract impact,
-  documentation evidence, residual risk, and blocker or resume condition.
+  documentation evidence, affected public-documentation inventory, grade-level
+  status, usage/result/error coverage, residual risk, and blocker or resume
+  condition. Missing inventory or documentation-quality checks fail closed.
 
 Keep the stable ID when locations, severity, or evidence change without changing
 the root cause. Create a new ID and predecessor relationship when the root cause

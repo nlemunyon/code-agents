@@ -1,6 +1,6 @@
 ---
 name: bootstrap-project-context
-description: Inspect or rescan an existing software repository and establish or reconcile durable Codex project context by creating or updating AGENTS.md, project .codex configuration, and only necessary project-specific agent overrides. Use when onboarding a repository, refreshing an already bootstrapped project after pulled or merged code changes, preparing complex coordinated work, or correcting stale build, test, architecture, routing, and ownership guidance. Reuse globally installed roles when available. Do not use for a one-off code change.
+description: Establish or refresh durable repository guidance, project Codex configuration, and necessary agent overrides for onboarding or changed project context. Reuse global roles; do not use for a one-off code change or user-level agent installation.
 ---
 
 # Bootstrap Project Context
@@ -27,7 +27,8 @@ project conventions or replacing useful repository guidance.
 4. Map the project using [references/context-checklist.md](references/context-checklist.md).
    Record only verified commands and paths. Capture pinned and targeted external
    versions plus canonical primary documentation sources. Mark unresolved items
-   explicitly.
+   explicitly. List public docs and record the command that checks
+   [the documentation quality contract](../deliver-system-change/references/documentation-quality-contract.md).
 5. Build a project-specific agent-routing matrix using
    [references/agent-routing.md](references/agent-routing.md). Base routing on
    verified system boundaries, technologies, paths, public contracts, risks,
@@ -79,8 +80,9 @@ project conventions or replacing useful repository guidance.
    as soon as evidence access is available.
 12. Validate TOML syntax, skill paths, documented commands, agent-routing role
    names and ownership boundaries, and instruction
-   precedence. Run the bundled portable-documentation validator on changed
-   documentation. Run cheap read-only checks first; do not run destructive
+   precedence. Run the path check and the project docs check on changed docs.
+   Block when public docs are not complete or the check fails. Run cheap
+   read-only checks first; do not run destructive
    setup, migrations, deployment, or release commands. Document an evidence-
    validator command only when its executable project-relative or installed
    plugin path is known; otherwise record the command location as unresolved

@@ -1,6 +1,6 @@
 ---
 name: verify-current-documentation
-description: Verify material external APIs, framework behavior, service availability, standards, configuration, and version-specific recommendations against current primary documentation that matches the project's installed or explicitly targeted version, Region, and partition. Use before planning, implementing, diagnosing, or approving work that depends on unstable or external facts. Do not use latest documentation as evidence for a pinned older version unless the task is an upgrade.
+description: Verify material external or unstable claims against current primary documentation matching the installed or targeted version, Region, partition, and configuration. Use as evidence for dependent work; never substitute latest documentation for a pinned older target unless upgrading.
 ---
 
 # Verify Current Documentation

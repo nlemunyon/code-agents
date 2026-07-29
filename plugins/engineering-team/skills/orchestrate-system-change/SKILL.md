@@ -1,154 +1,115 @@
 ---
 name: orchestrate-system-change
-description: Execute an approved output from $plan-system-change through iterative implementation, integration analysis, security auditing, remediation, and final verification. Use when a complex cross-system plan is ready to deliver and the user wants one orchestrator to coordinate $deliver-system-change, $review-system-change, and $secure-system-iteratively until acceptance, quality, and security convergence or a defined blocker. Do not use when no executable plan exists, for a narrow local edit, or to authorize deployments, releases, production mutations, migrations, breaking contracts, or external communications.
+description: Execute an approved cross-system plan, including approved migrations and breaking migration plans, through delivery, review, and security convergence. Not for narrow edits, missing plans, migration application, production mutation, unapproved breaking changes, or external communications.
 ---
 
 # Orchestrate System Change
 
-Consume an approved system-change plan and drive bounded vertical slices through
-implementation, independent analysis, and security convergence.
+Drive approved vertical slices to verified convergence. Child skills own their
+implementation detail; this skill owns composition, authority, durable state,
+gates, and stopping decisions.
 
-## Validate the execution contract
+## Validate the contract
 
-1. Resolve the repository root, applicable instructions, plan artifact or prior
-   `$plan-system-change` output, approval status, target environment, exclusions,
-   project agent-routing matrix, and current worktree state. Preserve unrelated
-   user changes. Use routing evidence to select slice owners and reviewers, but
-   revalidate it against each slice's actual boundaries.
-2. Require the plan to define outcome and acceptance criteria, verified current
-   state, proposed contracts and compatibility, ordered work packages and
-   ownership, verification, rollout and recovery, documentation evidence, risks,
-   assumptions, open decisions, and non-goals. Return to `$plan-system-change`
-   when a missing item would materially change implementation.
-3. Confirm required decisions and documentation claims are ready. Do not execute
-   work that depends on stale, inferred, unresolved, secondary-only, expired, or
-   target-mismatched evidence.
-4. Treat invocation as authorization to edit plan-scoped repository files and run
-   safe local verification. Do not infer authority to deploy, release, publish,
-   apply migrations, mutate cloud or database resources, rotate credentials,
-   access production, scan external targets, or communicate externally.
-5. Preserve stable public API, client, MCP, protocol, configuration, command,
-   event, model-interface, and data contracts. Stop before an unapproved break;
-   do not reinterpret plan approval as approval for a newly discovered breaking
-   change.
+1. Resolve repository instructions, approved plan, target, exclusions, routing
+   evidence, and worktree state. Preserve unrelated changes.
+2. Require outcome, criteria, current-state evidence, contracts and compatibility,
+   ordered ownership, verification, recovery, documentation evidence and public-
+   documentation gate, risks, decisions, and non-goals. Return to
+   `$plan-system-change` if a gap could change implementation.
+3. Block dependent work on stale, inferred, unresolved, secondary-only, expired,
+   or target-mismatched required evidence. Apply
+   [the documentation quality contract](../deliver-system-change/references/documentation-quality-contract.md).
+4. Invocation authorizes plan-scoped repository edits and safe local checks only.
+   It does not authorize deployment, release, publication, migration application,
+   production or cloud/database mutation, credential access, or external contact.
+5. Preserve public API, client, MCP, protocol, configuration, command, event,
+   model-interface, and data contracts. Stop before any unapproved break.
 
-## Initialize orchestration
+## Initialize durable state
 
-1. Convert the approved work graph into dependency-ordered vertical slices that
-   each produce observable, testable behavior. Keep contract-first and shared-
-   schema work sequential; parallelize only independent file and contract
-   ownership.
-2. Create the execution ledger defined in
-   [references/orchestration-ledger.md](references/orchestration-ledger.md). Map
-   every acceptance criterion, plan package, file set, public contract,
-   documentation claim, verification command, reviewer, and rollback action.
-   For every multi-phase or resumable run, persist it at a project-approved
-   `.codex` path; response-only or in-memory state is never authoritative.
-   Validate its append-only digest chain and receipts before resuming.
-3. Set every plan item to pending, in progress, completed, blocked, or superseded.
-   Allow only one integration slice to be in progress even when its independent
-   work packages run concurrently.
+Convert the plan into dependency-ordered, observable slices. Keep shared
+contracts and schemas sequential; parallelize only disjoint ownership.
 
-## Execute each slice
+Create the append-only ledger specified by
+[the ledger contract](references/orchestration-ledger.md), mapping criteria,
+packages, paths, contracts, claims, commands, reviewers, and recovery. Persist
+multi-phase or resumable runs at an approved `.codex` path; conversation state is
+not authoritative. Before resume, validate the complete digest chain and
+receipts, use the ledger validator's compact state, and reconcile its recorded
+revision with the worktree. On drift or invalid evidence, fail closed.
+The validator is
+`plugins/engineering-team/scripts/validate_orchestration_ledger.py`.
 
-Repeat this cycle for the next dependency-ready slice:
+Use pending, in-progress, completed, blocked, and superseded states. Only one
+integration slice may be in progress, though its independent packages may run
+concurrently.
 
-1. **Implement:** Invoke `$deliver-system-change` with only the approved slice.
-   Give each implementation agent exact outcome, inputs, ownership, exclusions,
-   dependencies, acceptance criteria, public-contract impact, evidence, tests,
-   and handoff. Assign each file, migration, schema, lockfile, generated artifact,
-   and public contract to exactly one writer.
-   When the slice owns CI/CD, build security, policy-as-code, provenance,
-   scanners, or promotion controls, route that bounded package through
-   `$implement-devsecops-controls` with `devsecops_engineer` as writer and keep
-   external delivery actions separately authorization-gated.
-2. **Integrate:** Inspect every handoff and diff centrally. Resolve ownership
-   boundaries, run focused tests, then execute the slice's broader verification.
-   Do not mark plan items complete from agent reports alone.
-3. **Analyze:** Invoke `$review-system-change` independently against the slice's
-   comparison base and acceptance criteria. Classify each validated finding as
-   blocking, authorized to fix, human-approved accepted risk, duplicate,
-   invalid, or requiring a plan or authority decision. Risk acceptance requires
-   a named accountable owner and approval receipt in the gate record. A
-   read-only review already returned by
-   `$deliver-system-change` may satisfy this gate only when it is independent of
-   every slice writer, covers the same integrated comparison base and acceptance
-   criteria, and provides the full `$review-system-change` evidence; otherwise
-   run a separate review.
-4. **Correct:** Route authorized non-security findings through a bounded
-   `$deliver-system-change` correction package. Re-run affected verification and
-   `$review-system-change` until no validated blocking correctness,
-   compatibility, data-integrity, operability, test, or documentation finding
-   remains. Keep reviewers read-only and separate from implementation ownership.
-5. **Secure:** Invoke `$secure-system-iteratively` with separate `audit_scope`
-   (the slice's changed surfaces and every affected trust boundary) and
-   `remediation_write_scope` (only plan-authorized writable paths). Never infer
-   one scope from the other. Let it audit, remediate, validate,
-   and re-audit until converged, blocked, or non-convergent. Propagate its
-   authority limits; never let security remediation silently expand plan scope
-   or break a public contract.
-6. **Re-analyze:** Invoke `$review-system-change` on the integrated post-security
-   state and rerun the slice verification matrix. Address regressions through the
-   same correction and security paths rather than direct untracked edits.
-7. **Close the slice:** Mark the slice complete only when its acceptance criteria
-   have objective evidence, required review findings are closed or explicitly
-   accepted, security has converged, public-contract status is approved, and
-   rollback or forward recovery remains viable.
+## Slice state machine
 
-## Control the outer loop
+For each dependency-ready slice:
 
-- Continue with the next dependency-ready slice while the preceding slice is
-  closed and measurable progress was made.
-- Update the ledger after every implementation, review, security, and
-  verification phase using append-only transitions. Never discard or rewrite
-  superseded evidence or unresolved findings. Missing or invalid gate/command
-  receipts fail closed.
-- Configure safe positive limits for iterations, distinct root-cause findings,
-  elapsed execution time, and cumulative unique changed files from the approved
-  plan or user. Unless the plan or user sets stricter limits, default to five
-  correction/security iterations per slice, 25 distinct findings, 120 elapsed
-  minutes, and 50 cumulative changed files. Use a token budget only when the
-  user explicitly supplies one. At a limit, persist a checkpoint and request
-  user direction before doing more work. Do not reset budgets when findings are
-  renamed, iterations restart, or work resumes.
-- Adapt sequencing or split a package when repository evidence supports the same
-  approved outcome and contracts. Return to `$plan-system-change` and request
-  approval when new evidence changes architecture, scope, acceptance criteria,
-  public contracts, migration strategy, security boundary, or rollback.
-- Stop as blocked when required evidence, ownership, approval, external action,
-  independent review, or a dependency is unavailable. Report completed safe
-  work; do not substitute implementer self-review for required independence.
-- Stop as non-convergent when the same root cause survives two correction cycles,
-  a full cycle produces no measurable progress, fixes repeatedly introduce
-  equivalent findings, or implementation and plan premises remain inconsistent.
-  Return the smallest decision or plan revision needed.
+1. **Deliver:** Invoke `$deliver-system-change` for the bounded slice with exact
+   outcome, inputs, ownership, exclusions, dependencies, criteria, contracts,
+   evidence, tests, and handoff. One writer owns each file, schema, migration,
+   lockfile, generated artifact, and public contract. Route repository delivery-
+   security controls through `$implement-devsecops-controls`; external actions
+   remain separately gated.
+2. **Integrate:** Inspect handoffs and diffs centrally, enforce ownership, and run
+   focused then slice-wide verification. Reports alone are not evidence.
+3. **Review:** Invoke `$review-system-change` independently on the integrated
+   comparison base. Reuse a delivery review only if it is writer-independent and
+   satisfies the same complete gate contract. Classify findings as blocking,
+   authorized to fix, approved accepted risk, duplicate, invalid, or awaiting a
+   decision. Accepted risk requires a named owner and approval receipt.
+4. **Correct:** Send authorized non-security corrections through bounded
+   `$deliver-system-change`; rerun affected checks and independent review.
+5. **Secure:** Invoke `$secure-system-iteratively` with explicit, separate
+   `audit_scope` and `remediation_write_scope`. Security work cannot expand plan
+   authority or break a public contract.
+6. **Recheck:** Review and verify the post-security integrated state. Route any
+   regression through the same tracked correction paths.
+7. **Close:** Close only with objective criterion evidence, resolved or approved
+   findings, security convergence, approved contract status, viable recovery,
+   and a passing documentation inventory and quality gate.
 
-## Final convergence
+Append a ledger transition after every phase, including gate and command receipt
+IDs. Never rewrite history or discard unresolved evidence.
 
-After all slices close:
+## Budgets and stop rules
 
-1. Run the complete plan verification matrix across integrated boundaries,
-   including normal, invalid, unauthorized, failure, concurrency, migration,
-   rollback, user-facing, contract, and documentation paths as applicable.
-2. Invoke `$review-system-change` independently over the complete plan diff and
-   address validated findings through the established correction loop.
-3. Invoke `$secure-system-iteratively` over the full plan-authorized system scope,
-   with audit and remediation-write scopes still distinct, not only files
-   changed in the last slice. Re-run whole-plan review and tests
-   after any security remediation.
-4. Declare convergence only when every acceptance criterion and work package is
-   complete, required evidence validates, independent review has no unresolved
-   blocking finding, security converges, public contracts have approved status,
-   and rollout and rollback plans match the integrated result.
-   Reuse matching fresh child gate records by ID rather than duplicating them,
-   but always require final whole-plan review and security gate records.
+Use plan or user limits; otherwise allow per slice at most five correction or
+security iterations, 25 distinct root causes, 120 elapsed minutes, and 50
+cumulative unique changed files. Use a token budget only when explicitly
+supplied. Counters survive renames, restarts, and resume. Checkpoint before a
+limit and request direction. A child workflow may impose a lower limit; the
+stricter remaining applicable parent or child limit wins, and child invocation
+or resume never resets parent consumption.
 
-## Handoff
+Continue only after a closed slice and measurable progress. Re-sequence or split
+within approved contracts; return to planning when evidence changes architecture,
+scope, criteria, contracts, migration, trust boundaries, or recovery.
 
-Lead with completed, blocked, or non-convergent. Report plan identity and approval,
-slice and work-package status, delivered behavior, files changed by owner,
-contracts and compatibility, migrations or infrastructure artifacts, review and
-security iterations, findings fixed and remaining, tests and results,
-documentation evidence and expiry, rollout and rollback, residual risks,
-unreviewed surfaces, and every action still requiring separate authorization.
-Do not deploy, release, publish, apply migrations, or contact external systems.
+Stop blocked when evidence, ownership, approval, authority, dependency, or an
+independent reviewer is unavailable. Stop non-convergent when the same root cause
+survives two correction cycles, a cycle makes no measurable progress, equivalent
+findings recur, or plan premises conflict with implementation. Persist the next
+action and exact resume condition; never substitute self-review.
+
+## Final convergence and handoff
+
+Run the whole-plan verification matrix, independent `$review-system-change`, and
+full authorized-scope `$secure-system-iteratively`; after remediation, rerun
+whole-plan review and tests. Fresh matching child gates may be referenced by ID,
+but never replace final whole-plan review and security gates.
+
+Converge only when all criteria and packages complete, required evidence and
+documentation gates pass, no blocking independent finding remains, security
+converges, contracts are approved, and rollout, rollback, and recovery match the
+result.
+
+Lead the handoff with completed, blocked, or non-convergent. Report plan identity,
+slice state, behavior, ownership, contracts, artifacts, iterations, findings,
+tests, evidence expiry, budgets and checkpoint, recovery, residual and unreviewed
+risk, plus actions needing separate authority. Do not deploy or communicate
+externally.

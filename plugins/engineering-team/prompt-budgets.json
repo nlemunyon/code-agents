@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "growth_policy": {
+    "maximum_percent": 2.0,
+    "minimum_word_allowance": 8,
+    "minimum_character_allowance": 32
+  },
+  "duplicate_policy": {
+    "minimum_files": 3,
+    "allowed_hashes": [
+      "2fc67671bab2",
+      "9a7eea04d62d",
+      "cef19098d96a"
+    ]
+  },
+  "groups": [
+    {
+      "id": "repository-guidance",
+      "paths": ["../../AGENTS.md"],
+      "content": "full_file",
+      "baseline_words": 593,
+      "baseline_characters": 4474,
+      "maximum_file_words": 593
+    },
+    {
+      "id": "skill-catalog",
+      "paths": ["skills/*/SKILL.md"],
+      "content": "skill_description",
+      "optimization_baseline_words": 738,
+      "optimization_baseline_characters": 5640,
+      "baseline_words": 405,
+      "baseline_characters": 3323,
+      "maximum_file_words": 37
+    },
+    {
+      "id": "skill-entrypoints",
+      "paths": ["skills/*/SKILL.md"],
+      "content": "full_file",
+      "optimization_baseline_words": 8189,
+      "optimization_baseline_characters": 66893,
+      "baseline_words": 6864,
+      "baseline_characters": 56690,
+      "maximum_file_words": 808
+    },
+    {
+      "id": "agent-prompts",
+      "paths": ["templates/custom-agents/*.toml"],
+      "content": "agent_instructions",
+      "optimization_baseline_words": 4858,
+      "optimization_baseline_characters": 37040,
+      "baseline_words": 4267,
+      "baseline_characters": 33002,
+      "maximum_file_words": 437
+    },
+    {
+      "id": "on-demand-references",
+      "paths": ["skills/*/references/*.md"],
+      "content": "full_file",
+      "optimization_baseline_words": 7992,
+      "optimization_baseline_characters": 59978,
+      "baseline_words": 7781,
+      "baseline_characters": 58809,
+      "maximum_file_words": 823,
+      "growth_only": true
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "largest-selected-skill",
+      "members": [
+        {"group": "repository-guidance", "aggregate": "total"},
+        {"group": "skill-catalog", "aggregate": "total"},
+        {"group": "skill-entrypoints", "aggregate": "maximum_file"},
+        {"group": "agent-prompts", "aggregate": "maximum_file"}
+      ],
+      "optimization_baseline_words": 3125,
+      "baseline_words": 2243
+    },
+    {
+      "id": "largest-composite-with-reference",
+      "members": [
+        {"group": "repository-guidance", "aggregate": "total"},
+        {"group": "skill-catalog", "aggregate": "total"},
+        {"group": "skill-entrypoints", "aggregate": "maximum_file"},
+        {"group": "agent-prompts", "aggregate": "maximum_file"},
+        {"group": "on-demand-references", "aggregate": "maximum_file"}
+      ],
+      "optimization_baseline_words": 3948,
+      "baseline_words": 3066
+    }
+  ]
+}
