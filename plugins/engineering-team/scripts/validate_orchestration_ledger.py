@@ -52,6 +52,7 @@ LIMIT_TO_CONSUMPTION = {
     "max_cumulative_changed_files": "cumulative_changed_files",
     "token_budget": "tokens",
 }
+CONSUMPTION_TO_LIMIT = {value: key for key, value in LIMIT_TO_CONSUMPTION.items()}
 RUN_REQUIRED = (
     "schema_version", "run_id", "plan_id", "created_at", "repository",
     "plan_source", "approval_evidence", "outcome", "scope", "exclusions",
@@ -182,7 +183,7 @@ def _validate_consumption(
             )
         if amount < previous.get(key, 0):
             raise LedgerError(f"line {line}: budget consumption reset for {key}")
-        limit_key = next(k for k, v in LIMIT_TO_CONSUMPTION.items() if v == key)
+        limit_key = CONSUMPTION_TO_LIMIT[key]
         if amount > limits[limit_key]:
             raise LedgerError(
                 f"line {line}: budget_consumption.{key} exceeds {limit_key}"
@@ -332,14 +333,7 @@ def load_and_validate(path: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]
             for (slice_id, package_id), status in states.items()
             if status not in {"completed", "superseded"}
         }
-        blockers: dict[str, dict[str, Any]] = {}
-        for record in records[1:]:
-            for blocker in record.get("blockers", []):
-                if isinstance(blocker, dict) and isinstance(blocker.get("id"), str):
-                    if blocker.get("status", "open") == "closed":
-                        blockers.pop(blocker["id"], None)
-                    else:
-                        blockers[blocker["id"]] = blocker
+        blockers = _open_blockers(records)
         if incomplete:
             raise LedgerError(
                 "completed final conflicts with incomplete persisted states: "
@@ -389,23 +383,29 @@ def load_and_validate(path: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]
     return records, compact_state(records)
 
 
-def compact_state(records: list[dict[str, Any]]) -> dict[str, Any]:
-    header, latest = records[0], records[-1]
-    slices: dict[str, str] = {}
-    packages: dict[str, str] = {}
+def _open_blockers(records: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     blockers: dict[str, dict[str, Any]] = {}
-    consumption: dict[str, int] = {}
     for record in records[1:]:
-        if isinstance(record.get("slice_id"), str):
-            slices[record["slice_id"]] = record["status"]
-        if isinstance(record.get("work_package_id"), str):
-            packages[record["work_package_id"]] = record["status"]
         for blocker in record.get("blockers", []):
             if isinstance(blocker, dict) and isinstance(blocker.get("id"), str):
                 if blocker.get("status", "open") == "closed":
                     blockers.pop(blocker["id"], None)
                 else:
                     blockers[blocker["id"]] = blocker
+    return blockers
+
+
+def compact_state(records: list[dict[str, Any]]) -> dict[str, Any]:
+    header, latest = records[0], records[-1]
+    slices: dict[str, str] = {}
+    packages: dict[str, str] = {}
+    blockers = _open_blockers(records)
+    consumption: dict[str, int] = {}
+    for record in records[1:]:
+        if isinstance(record.get("slice_id"), str):
+            slices[record["slice_id"]] = record["status"]
+        if isinstance(record.get("work_package_id"), str):
+            packages[record["work_package_id"]] = record["status"]
         consumption.update(record["budget_consumption"])
     return {
         "schema_version": header["schema_version"], "run_id": header["run_id"],
