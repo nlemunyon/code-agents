@@ -12,8 +12,9 @@ import re
 import subprocess
 import sys
 import tokenize
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 
 DOCUMENT_SUFFIXES = {".adoc", ".markdown", ".md", ".mdx", ".rst", ".txt"}
@@ -350,7 +351,7 @@ def validate_inventory(
                 )
 
     if baseline is not None:
-        baseline_by_id = {item.get("id"): item for item in baseline if isinstance(item.get("id"), str)}
+        baseline_by_id = {item["id"]: item for item in baseline if isinstance(item.get("id"), str)}
         for identifier in sorted(set(baseline_by_id) - set(by_id)):
             violations.append(f"{inventory_path}: {identifier}: missing baseline interface")
         for identifier in sorted(set(baseline_by_id) & set(by_id)):
