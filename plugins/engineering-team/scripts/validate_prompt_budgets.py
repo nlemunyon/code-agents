@@ -273,13 +273,10 @@ def validate(config_path: Path, *, show_duplicates: bool) -> tuple[list[str], li
         group_id = group.get("id")
         patterns = group.get("paths")
         content = group.get("content")
-        if not isinstance(group_id, str) or not isinstance(patterns, list):
-            raise BudgetError(f"{config_path}: invalid group")
         paths = sorted(
             {
                 path
                 for pattern in patterns
-                if isinstance(pattern, str)
                 for path in PLUGIN_ROOT.glob(pattern)
                 if path.is_file()
             }
