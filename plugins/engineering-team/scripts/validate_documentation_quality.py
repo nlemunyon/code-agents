@@ -295,6 +295,7 @@ def validate_inventory(
 ) -> list[str]:
     violations: list[str] = []
     by_id: dict[str, dict[str, Any]] = {}
+    normalized_docs: dict[Path, str] = {}
     for index, entry in enumerate(entries, 1):
         label = str(entry.get("id") or f"entry {index}")
         missing = [
@@ -322,12 +323,16 @@ def validate_inventory(
             if not doc_path.is_file():
                 violations.append(f"{inventory_path}: {label}: docs file does not exist: {relative}")
             elif marker and anchor:
-                try:
-                    content = doc_path.read_text(encoding="utf-8").lower()
-                except (OSError, UnicodeDecodeError) as exc:
-                    raise InputError(f"cannot read documented content {doc_path}: {exc}") from exc
+                if doc_path not in normalized_docs:
+                    try:
+                        content = doc_path.read_text(encoding="utf-8").lower()
+                    except (OSError, UnicodeDecodeError) as exc:
+                        raise InputError(f"cannot read documented content {doc_path}: {exc}") from exc
+                    normalized_docs[doc_path] = re.sub(
+                        r"\s+", " ", re.sub(r"[^a-z0-9 \n-]", "", content)
+                    )
                 normalized = re.sub(r"[^a-z0-9 -]", "", anchor.lower()).replace("-", " ")
-                if normalized not in re.sub(r"\s+", " ", re.sub(r"[^a-z0-9 \n-]", "", content)):
+                if normalized not in normalized_docs[doc_path]:
                     violations.append(f"{inventory_path}: {label}: docs anchor not found: {anchor}")
         source = entry.get("source")
         if isinstance(source, str) and source.strip():
