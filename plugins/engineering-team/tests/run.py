@@ -6,7 +6,6 @@ from __future__ import annotations
 import os
 import shutil
 import sys
-import unittest
 from pathlib import Path
 
 
@@ -17,6 +16,8 @@ if sys.version_info < (3, 11):
             os.execv(executable, [executable, __file__, *sys.argv[1:]])
     print("Python 3.11 or newer is required to run the tests.", file=sys.stderr)
     raise SystemExit(2)
+
+import unittest
 
 
 def main() -> int:

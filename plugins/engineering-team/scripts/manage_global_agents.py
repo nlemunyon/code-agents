@@ -3,16 +3,9 @@
 
 from __future__ import annotations
 
-import argparse
-import hashlib
-import json
 import os
-import re
 import shutil
 import sys
-import tempfile
-from dataclasses import dataclass
-from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -25,6 +18,14 @@ except ModuleNotFoundError:
             os.execv(executable, [executable, __file__, *sys.argv[1:]])
     print("Python 3.11 or newer is required to manage global agents.", file=sys.stderr)
     raise SystemExit(2)
+
+import argparse
+import hashlib
+import json
+import re
+import tempfile
+from dataclasses import dataclass
+from datetime import datetime, timezone
 
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]

@@ -3,15 +3,27 @@
 
 from __future__ import annotations
 
+import os
+import shutil
+import sys
+from pathlib import Path
+
+
+try:
+    import tomllib
+except ModuleNotFoundError:
+    for candidate in ("python3.13", "python3.12", "python3.11"):
+        executable = shutil.which(candidate)
+        if executable and Path(executable).resolve() != Path(sys.executable).resolve():
+            os.execv(executable, [executable, __file__, *sys.argv[1:]])
+    print("Python 3.11 or newer is required to validate prompt budgets.", file=sys.stderr)
+    raise SystemExit(2)
+
 import argparse
 import hashlib
 import json
-import os
 import re
-import shutil
-import sys
 from collections import defaultdict
-from pathlib import Path
 
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
@@ -43,16 +55,6 @@ REQUIRED_GROUP_IDS = set(REQUIRED_GROUPS)
 REQUIRED_SCENARIO_IDS = set(REQUIRED_SCENARIOS)
 CONTENT_SELECTORS = {"full_file", "skill_description", "agent_instructions"}
 AGGREGATES = {"total", "maximum_file"}
-
-try:
-    import tomllib
-except ModuleNotFoundError:
-    for candidate in ("python3.13", "python3.12", "python3.11"):
-        executable = shutil.which(candidate)
-        if executable and Path(executable).resolve() != Path(sys.executable).resolve():
-            os.execv(executable, [executable, __file__, *sys.argv[1:]])
-    print("Python 3.11 or newer is required to validate prompt budgets.", file=sys.stderr)
-    raise SystemExit(2)
 
 
 class BudgetError(Exception):
