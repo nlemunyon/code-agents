@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import sys
 from pathlib import Path
@@ -53,6 +54,15 @@ def is_document(path: Path) -> bool:
     return path.suffix.lower() in DOCUMENT_SUFFIXES or path.name.upper() in DOCUMENT_NAMES
 
 
+def walk_files(root: Path) -> list[Path]:
+    """List files below root in sorted order and skip tool folders."""
+    found: list[Path] = []
+    for directory, subdirectories, filenames in os.walk(root):
+        subdirectories[:] = [name for name in subdirectories if name not in SKIP_DIRECTORIES]
+        found.extend(Path(directory) / name for name in filenames)
+    return sorted(found)
+
+
 def iter_documents(inputs: list[Path]):
     seen: set[Path] = set()
     for candidate in inputs:
@@ -64,7 +74,7 @@ def iter_documents(inputs: list[Path]):
             continue
         if not candidate.is_dir():
             raise FileNotFoundError(candidate)
-        for path in sorted(candidate.rglob("*")):
+        for path in walk_files(candidate):
             if any(part in SKIP_DIRECTORIES for part in path.parts):
                 continue
             if path.is_file() and is_document(path):
