@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import importlib.util
 import json
 import subprocess
 import sys
@@ -11,10 +10,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "validate_documentation_quality.py"
-SPEC = importlib.util.spec_from_file_location("documentation_quality", SCRIPT)
-assert SPEC and SPEC.loader
-MODULE = importlib.util.module_from_spec(SPEC)
-SPEC.loader.exec_module(MODULE)
 
 
 def run(*arguments: object) -> subprocess.CompletedProcess[str]:
@@ -23,6 +18,21 @@ def run(*arguments: object) -> subprocess.CompletedProcess[str]:
         text=True,
         capture_output=True,
         check=False,
+    )
+
+
+def commit_baseline(tmp_path: Path, *names: str) -> None:
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "config", "user.email", "test@example.invalid"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "config", "user.name", "Test"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "add", *names], cwd=tmp_path, check=True)
+    subprocess.run(["git", "commit", "-qm", "baseline"], cwd=tmp_path, check=True)
+
+
+def run_changed_from(tmp_path: Path) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [sys.executable, str(SCRIPT), "--changed-from", "HEAD", "."],
+        cwd=tmp_path, text=True, capture_output=True, check=False,
     )
 
 
@@ -192,17 +202,13 @@ def test_bad_inventory_is_input_error(tmp_path: Path) -> None:
 
 
 def test_changed_from_checks_only_added_docs_and_source_prose(tmp_path: Path) -> None:
-    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
-    subprocess.run(["git", "config", "user.email", "test@example.invalid"], cwd=tmp_path, check=True)
-    subprocess.run(["git", "config", "user.name", "Test"], cwd=tmp_path, check=True)
     guide = tmp_path / "guide.md"
     guide.write_text(
         "Institutionalization necessitates extraordinarily sophisticated organizational "
         "communication methodologies through comprehensive reconceptualization processes.\n",
         encoding="utf-8",
     )
-    subprocess.run(["git", "add", "guide.md"], cwd=tmp_path, check=True)
-    subprocess.run(["git", "commit", "-qm", "baseline"], cwd=tmp_path, check=True)
+    commit_baseline(tmp_path, "guide.md")
     script = tmp_path / "new.py"
     script.write_text(
         "# Institutionalization necessitates extraordinarily sophisticated organizational "
@@ -210,42 +216,28 @@ def test_changed_from_checks_only_added_docs_and_source_prose(tmp_path: Path) ->
         "value = 'this difficult code literal is not authored documentation at all'\n",
         encoding="utf-8",
     )
-    result = subprocess.run(
-        [sys.executable, str(SCRIPT), "--changed-from", "HEAD", "."],
-        cwd=tmp_path, text=True, capture_output=True, check=False,
-    )
+    result = run_changed_from(tmp_path)
     assert result.returncode == 1
     assert "new.py" in result.stderr
     assert "guide.md" not in result.stderr
 
 
 def test_changed_from_checks_added_lines_not_legacy_lines(tmp_path: Path) -> None:
-    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
-    subprocess.run(["git", "config", "user.email", "test@example.invalid"], cwd=tmp_path, check=True)
-    subprocess.run(["git", "config", "user.name", "Test"], cwd=tmp_path, check=True)
     guide = tmp_path / "guide.md"
     hard = (
         "Institutionalization necessitates extraordinarily sophisticated organizational "
         "communication methodologies through comprehensive reconceptualization processes.\n"
     )
     guide.write_text(hard, encoding="utf-8")
-    subprocess.run(["git", "add", "guide.md"], cwd=tmp_path, check=True)
-    subprocess.run(["git", "commit", "-qm", "baseline"], cwd=tmp_path, check=True)
+    commit_baseline(tmp_path, "guide.md")
     guide.write_text(hard + "This new note is short and clear for every reader today.\n", encoding="utf-8")
-    result = subprocess.run(
-        [sys.executable, str(SCRIPT), "--changed-from", "HEAD", "."],
-        cwd=tmp_path, text=True, capture_output=True, check=False,
-    )
+    result = run_changed_from(tmp_path)
     assert result.returncode == 0, result.stderr
 
 
 def test_changed_from_ignores_ordinary_python_and_toml_code(tmp_path: Path) -> None:
-    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
-    subprocess.run(["git", "config", "user.email", "test@example.invalid"], cwd=tmp_path, check=True)
-    subprocess.run(["git", "config", "user.name", "Test"], cwd=tmp_path, check=True)
     (tmp_path / "base.txt").write_text("base\n", encoding="utf-8")
-    subprocess.run(["git", "add", "base.txt"], cwd=tmp_path, check=True)
-    subprocess.run(["git", "commit", "-qm", "baseline"], cwd=tmp_path, check=True)
+    commit_baseline(tmp_path, "base.txt")
     (tmp_path / "ordinary.py").write_text(
         "schema = 'Institutionalization necessitates extraordinarily sophisticated "
         "organizational communication methodologies through comprehensive "
@@ -261,22 +253,15 @@ def test_changed_from_ignores_ordinary_python_and_toml_code(tmp_path: Path) -> N
         'sandbox_mode = "workspace-write"\n',
         encoding="utf-8",
     )
-    result = subprocess.run(
-        [sys.executable, str(SCRIPT), "--changed-from", "HEAD", "."],
-        cwd=tmp_path, text=True, capture_output=True, check=False,
-    )
+    result = run_changed_from(tmp_path)
     assert result.returncode == 0, result.stderr
 
 
 def test_changed_from_does_not_score_agent_toml_instructions(tmp_path: Path) -> None:
-    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
-    subprocess.run(["git", "config", "user.email", "test@example.invalid"], cwd=tmp_path, check=True)
-    subprocess.run(["git", "config", "user.name", "Test"], cwd=tmp_path, check=True)
     role = tmp_path / "role.toml"
     legacy = 'developer_instructions = """Keep this agent rule exact."""\n'
     role.write_text(legacy, encoding="utf-8")
-    subprocess.run(["git", "add", "role.toml"], cwd=tmp_path, check=True)
-    subprocess.run(["git", "commit", "-qm", "baseline"], cwd=tmp_path, check=True)
+    commit_baseline(tmp_path, "role.toml")
     role.write_text(
         'developer_instructions = """\n'
         "Institutionalization necessitates extraordinarily sophisticated organizational "
@@ -284,22 +269,15 @@ def test_changed_from_does_not_score_agent_toml_instructions(tmp_path: Path) -> 
         '"""\n',
         encoding="utf-8",
     )
-    result = subprocess.run(
-        [sys.executable, str(SCRIPT), "--changed-from", "HEAD", "."],
-        cwd=tmp_path, text=True, capture_output=True, check=False,
-    )
+    result = run_changed_from(tmp_path)
     assert result.returncode == 0, result.stderr
 
 
 def test_changed_from_keeps_existing_markdown_fence_context(tmp_path: Path) -> None:
-    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
-    subprocess.run(["git", "config", "user.email", "test@example.invalid"], cwd=tmp_path, check=True)
-    subprocess.run(["git", "config", "user.name", "Test"], cwd=tmp_path, check=True)
     guide = tmp_path / "guide.md"
     baseline = "Run this command:\n\n```text\nexisting-command --safe\n```\n"
     guide.write_text(baseline, encoding="utf-8")
-    subprocess.run(["git", "add", "guide.md"], cwd=tmp_path, check=True)
-    subprocess.run(["git", "commit", "-qm", "baseline"], cwd=tmp_path, check=True)
+    commit_baseline(tmp_path, "guide.md")
     guide.write_text(
         baseline.replace(
             "existing-command --safe\n",
@@ -310,10 +288,7 @@ def test_changed_from_keeps_existing_markdown_fence_context(tmp_path: Path) -> N
         ),
         encoding="utf-8",
     )
-    result = subprocess.run(
-        [sys.executable, str(SCRIPT), "--changed-from", "HEAD", "."],
-        cwd=tmp_path, text=True, capture_output=True, check=False,
-    )
+    result = run_changed_from(tmp_path)
     assert result.returncode == 0, result.stderr
 
 

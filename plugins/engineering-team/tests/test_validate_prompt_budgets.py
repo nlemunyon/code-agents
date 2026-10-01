@@ -15,17 +15,21 @@ VALIDATOR = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(VALIDATOR)
 
 
+def validate_mutated(mutate, *, show_duplicates: bool = False) -> tuple[list[str], list[str]]:
+    config = json.loads(
+        (PLUGIN_ROOT / "prompt-budgets.json").read_text(encoding="utf-8")
+    )
+    mutate(config)
+    with tempfile.TemporaryDirectory() as directory:
+        path = Path(directory) / "budgets.json"
+        path.write_text(json.dumps(config), encoding="utf-8")
+        return VALIDATOR.validate(path, show_duplicates=show_duplicates)
+
+
 class PromptBudgetTests(unittest.TestCase):
     def assert_invalid_config(self, mutate) -> None:
-        config = json.loads(
-            (PLUGIN_ROOT / "prompt-budgets.json").read_text(encoding="utf-8")
-        )
-        mutate(config)
-        with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / "budgets.json"
-            path.write_text(json.dumps(config), encoding="utf-8")
-            with self.assertRaises(VALIDATOR.BudgetError):
-                VALIDATOR.validate(path, show_duplicates=False)
+        with self.assertRaises(VALIDATOR.BudgetError):
+            validate_mutated(mutate)
 
     def test_repository_prompt_budgets_pass(self) -> None:
         errors, reports = VALIDATOR.validate(
@@ -37,27 +41,19 @@ class PromptBudgetTests(unittest.TestCase):
         self.assertTrue(any(item.startswith("duplicate ") for item in reports))
 
     def test_growth_over_allowance_fails(self) -> None:
-        config = json.loads(
-            (PLUGIN_ROOT / "prompt-budgets.json").read_text(encoding="utf-8")
-        )
-        group = next(item for item in config["groups"] if item["id"] == "skill-catalog")
-        group["baseline_words"] = 1
-        group["baseline_characters"] = 1
-        with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / "budgets.json"
-            path.write_text(json.dumps(config), encoding="utf-8")
-            errors, _ = VALIDATOR.validate(path, show_duplicates=False)
+        def mutate(config) -> None:
+            group = next(item for item in config["groups"] if item["id"] == "skill-catalog")
+            group["baseline_words"] = 1
+            group["baseline_characters"] = 1
+
+        errors, _ = validate_mutated(mutate)
         self.assertTrue(any("skill-catalog" in error for error in errors))
 
     def test_unapproved_repeated_prompt_prose_fails(self) -> None:
-        config = json.loads(
-            (PLUGIN_ROOT / "prompt-budgets.json").read_text(encoding="utf-8")
-        )
-        config["duplicate_policy"]["allowed_hashes"] = []
-        with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / "budgets.json"
-            path.write_text(json.dumps(config), encoding="utf-8")
-            errors, _ = VALIDATOR.validate(path, show_duplicates=True)
+        def mutate(config) -> None:
+            config["duplicate_policy"]["allowed_hashes"] = []
+
+        errors, _ = validate_mutated(mutate, show_duplicates=True)
         self.assertTrue(any(error.startswith("duplicate ") for error in errors))
 
     def test_missing_canonical_group_fails_closed(self) -> None:

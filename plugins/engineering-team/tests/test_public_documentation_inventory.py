@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shlex
 import subprocess
 import sys
@@ -55,8 +56,6 @@ class PublicDocumentationInventoryTests(unittest.TestCase):
                 with tempfile.TemporaryDirectory() as temporary_home:
                     environment = None
                     if entry["id"] == "cli.manage-global-agents":
-                        import os
-
                         environment = {
                             **os.environ,
                             "CODEX_HOME": temporary_home,
