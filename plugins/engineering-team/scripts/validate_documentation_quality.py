@@ -7,6 +7,7 @@ import argparse
 import ast
 import io
 import json
+import os
 import re
 import subprocess
 import sys
@@ -37,12 +38,21 @@ class InputError(Exception):
     """An invalid path, option, or inventory."""
 
 
+def walk_files(root: Path) -> list[Path]:
+    """List files below root in sorted order and skip tool folders."""
+    found: list[Path] = []
+    for directory, subdirectories, filenames in os.walk(root):
+        subdirectories[:] = [name for name in subdirectories if name not in SKIP_DIRECTORIES]
+        found.extend(Path(directory) / name for name in filenames)
+    return sorted(found)
+
+
 def iter_documents(inputs: Iterable[Path]) -> Iterable[Path]:
     seen: set[Path] = set()
     for candidate in inputs:
         if not candidate.exists():
             raise InputError(f"path does not exist: {candidate}")
-        paths = [candidate] if candidate.is_file() else sorted(candidate.rglob("*"))
+        paths = [candidate] if candidate.is_file() else walk_files(candidate)
         for path in paths:
             if any(part in SKIP_DIRECTORIES for part in path.parts):
                 continue
