@@ -148,11 +148,9 @@ def flesch_kincaid_grade(text: str) -> tuple[float, int, int]:
     return grade, len(words), sentences
 
 
-def validate_readability(path: Path, max_grade: float, min_words: int) -> list[str]:
-    try:
-        text = path.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError) as exc:
-        raise InputError(f"cannot read UTF-8 documentation {path}: {exc}") from exc
+def readability_violations(
+    path: Path, text: str, max_grade: float, min_words: int
+) -> list[str]:
     violations = []
     for line, sample in authored_samples(text):
         word_count = len(WORD_RE.findall(sample))
@@ -165,6 +163,14 @@ def validate_readability(path: Path, max_grade: float, min_words: int) -> list[s
                 f"({word_count} words)"
             )
     return violations
+
+
+def validate_readability(path: Path, max_grade: float, min_words: int) -> list[str]:
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        raise InputError(f"cannot read UTF-8 documentation {path}: {exc}") from exc
+    return readability_violations(path, text, max_grade, min_words)
 
 
 def added_line_numbers(reference: str, path: Path) -> set[int]:
@@ -393,15 +399,9 @@ def main(argv: list[str] | None = None) -> int:
                     text = authored_source_text(document, args.changed_from)
                 else:
                     text = changed_document_text(args.changed_from, document)
-                for line, sample in authored_samples(text):
-                    word_count = len(WORD_RE.findall(sample))
-                    if word_count >= args.min_words:
-                        grade, _, _ = flesch_kincaid_grade(sample)
-                        if grade > args.max_grade:
-                            violations.append(
-                                f"{document}:{line}: readability grade {grade:.1f} "
-                                f"exceeds {args.max_grade:g} ({word_count} words)"
-                            )
+                violations.extend(
+                    readability_violations(document, text, args.max_grade, args.min_words)
+                )
         else:
             documents = list(iter_documents(args.paths))
             for document in documents:
