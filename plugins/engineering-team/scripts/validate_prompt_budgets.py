@@ -233,14 +233,10 @@ def require_config_shape(config: dict, path: Path) -> None:
         )
 
 
-def duplicate_paragraphs(paths: list[Path]) -> list[tuple[int, int, str, str]]:
+def duplicate_paragraphs(texts: dict[Path, str]) -> list[tuple[int, int, str, str]]:
     owners: dict[str, set[str]] = defaultdict(set)
     original: dict[str, str] = {}
-    for path in paths:
-        text = read_content(
-            path,
-            "agent_instructions" if path.suffix == ".toml" else "full_file",
-        )
+    for path, text in texts.items():
         for paragraph in re.split(r"\n\s*\n", text):
             normalized = " ".join(paragraph.split())
             if len(normalized.split()) < 12:
@@ -269,7 +265,7 @@ def validate(config_path: Path, *, show_duplicates: bool) -> tuple[list[str], li
     errors: list[str] = []
     reports: list[str] = []
     results: dict[str, dict[str, int]] = {}
-    prompt_paths: list[Path] = []
+    prompt_texts: dict[Path, str] = {}
 
     groups = config["groups"]
 
@@ -291,7 +287,8 @@ def validate(config_path: Path, *, show_duplicates: bool) -> tuple[list[str], li
         if not paths:
             errors.append(f"{group_id}: no files matched")
             continue
-        values = [measure(read_content(path, content)) for path in paths]
+        texts = [read_content(path, content) for path in paths]
+        values = [measure(text) for text in texts]
         total_words = sum(words for words, _ in values)
         total_chars = sum(chars for _, chars in values)
         max_words = max(words for words, _ in values)
@@ -322,7 +319,7 @@ def validate(config_path: Path, *, show_duplicates: bool) -> tuple[list[str], li
         if max_words > file_limit:
             errors.append(f"{group_id}: largest file has {max_words} words; limit is {file_limit}")
         if content in {"full_file", "agent_instructions"} and not group.get("growth_only"):
-            prompt_paths.extend(paths)
+            prompt_texts.update(zip(paths, texts))
 
     for scenario in config["scenarios"]:
         scenario_id = scenario.get("id")
@@ -349,7 +346,7 @@ def validate(config_path: Path, *, show_duplicates: bool) -> tuple[list[str], li
     duplicate_policy = config["duplicate_policy"]
     minimum_files = duplicate_policy["minimum_files"]
     allowed_hashes = set(duplicate_policy["allowed_hashes"])
-    for copies, words, digest, paragraph in duplicate_paragraphs(prompt_paths):
+    for copies, words, digest, paragraph in duplicate_paragraphs(prompt_texts):
         if copies < minimum_files:
             continue
         if show_duplicates:
