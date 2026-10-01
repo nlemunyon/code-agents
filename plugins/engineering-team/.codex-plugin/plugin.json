@@ -1,6 +1,6 @@
 {
   "name": "engineering-team",
-  "version": "0.9.2+codex.20260729000000",
+  "version": "0.9.3+codex.20260930000000",
   "description": "Coordinate specialized agents to plan, deliver, secure, diagnose, and review complex software systems.",
   "author": {
     "name": "Local engineering team"
